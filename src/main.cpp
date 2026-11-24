@@ -1,4 +1,5 @@
 #include <Geode/modify/PlayLayer.hpp>
+#include <Geode/binding/GameManager.hpp>
 #include <Geode/loader/Mod.hpp>
 using namespace geode::prelude;
 
