@@ -10,6 +10,9 @@ class $modify(PlayLayer) {
         int moveProgressBar = 2;
         bool pbSetting=false, pgSetting=false;
         int frameFound = 0;
+        // vanilla Y positions, captured once so the per-frame y offset doesn't accumulate
+        bool basesSaved = false;
+        float barBaseY = 0.f, labelBaseY = 0.f;
     };
     
     void updateProgressbar()
@@ -32,20 +35,19 @@ class $modify(PlayLayer) {
         if(!m_isPlatformer)
         {
 
-            //run the function if any settings has changed
-            bool runFunc=pbChanged || pgChanged;
-
-            if(m_fields->moveProgressBar>0 || runFunc)
+            if(!m_fields->basesSaved)
             {
-                moveProgressBarNoPlat();
-                log::info("classic level");
-                m_fields->moveProgressBar--;
-                log::debug("moved progress bar");
-                if(runFunc)
-                {
-                    log::info("Settings modified");
-                }
+                m_fields->barBaseY = m_progressBar->getPositionY();
+                m_fields->labelBaseY = m_percentageLabel->getPositionY();
+                m_fields->basesSaved = true;
             }
+            if(pbChanged || pgChanged)
+            {
+                log::info("Settings modified");
+            }
+            // GD 2.2091 resets the percentage label position on every update,
+            // so the layout has to be reapplied each call, not just the first ones
+            moveProgressBarNoPlat();
         }
     };
     // for some reason this function resets the x position each frame so the function to initialize y position and anchor are run only the first time and
@@ -116,8 +118,8 @@ class $modify(PlayLayer) {
             }
             else
             {
-                m_progressBar->setPositionY(m_progressBar->getPositionY()+yOffset);
-                m_percentageLabel->setPositionY(m_percentageLabel->getPositionY()+yOffset);
+                m_progressBar->setPositionY(m_fields->barBaseY+yOffset);
+                m_percentageLabel->setPositionY(m_fields->labelBaseY+yOffset);
             }
             if(pos=="Right")
             {
